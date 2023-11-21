@@ -9,13 +9,13 @@ public class MCCarrierScript : MonoBehaviour
     [SerializeField] private Transform startSpawnPointVegetable;
     [SerializeField] private Transform dropPoint;
     [SerializeField] private GameObject changeParent;
-    [SerializeField] private GameObject spawnParent;
-    [SerializeField] private List<GameObject> listFood = new List<GameObject>();
+    public List<GameObject> listFood = new List<GameObject>();
     public float arcHeight = 1f;
     public float throwDuration = 2f;
     private int index;
     private bool isBin = false;
-    public float delayTime;
+    private Coroutine getFood;
+    private Coroutine dropFood;
 
     void Start()
     {
@@ -30,24 +30,27 @@ public class MCCarrierScript : MonoBehaviour
     {
         if (other.CompareTag("FoodSpawner"))
         {
-            StartCoroutine(GetFood(other));
+            getFood = StartCoroutine(GetFood(other));
 
         }
-      
+        if (other.CompareTag("Trash"))
+        {
+            dropFood = StartCoroutine(DropFood());
+        }
     }
     private void OnTriggerExit(Collider other)
     {
         isBin = false;
-        Debug.Log("exit");
         _actionScript.StopAction();
-        StopCoroutine(GetFood(other));
+        StopCoroutine(getFood);
+        if (other.CompareTag("Trash"))
+        {
+            StopCoroutine(dropFood);
+        }
     }
     private void OnTriggerStay(Collider other)
     {
-        if (other.CompareTag("Trash"))
-        {
-            StartCoroutine(DropFood());
-        }
+
     }
     IEnumerator GetFood(Collider other)
     {
@@ -61,19 +64,18 @@ public class MCCarrierScript : MonoBehaviour
             {
                 case KitchenObject.ItemType.Vegetable:
                     GameObject beef = Instantiate(kitchenObject.vegetablePf, startSpawnPointVegetable.position, Quaternion.identity);
-                    beef.transform.parent = changeParent.transform;
-                    beef.transform.position = Vector3.zero;
                     listFood.Add(beef);
                     ThrowObjectOnArc(beef);
                     break;
                 case KitchenObject.ItemType.Beef:
                     GameObject vegetable = Instantiate(kitchenObject.beefPf, startSpawnPointBeef.position, Quaternion.identity);
-                    vegetable.transform.parent = changeParent.transform;
-                    vegetable.transform.position = Vector3.zero;
+                    //vegetable.transform.parent = changeParent.transform;
                     listFood.Add(vegetable);
                     ThrowObjectOnArc(vegetable);
                     break;
             }
+            getFood = StartCoroutine(GetFood(other));
+
         }
         yield return null;
     }
@@ -88,6 +90,7 @@ public class MCCarrierScript : MonoBehaviour
     {
 
         // Chờ một khoảng thời gian để đảm bảo vật thể đã được instantiate
+        obj.transform.SetParent(changeParent.transform);
         yield return new WaitForSeconds(0.05f);
 
         float elapsedTime = 0f;
@@ -102,15 +105,23 @@ public class MCCarrierScript : MonoBehaviour
 
             // Di chuyển vật thể đến vị trí hiện tại
             obj.transform.position = currentPos;
-
             yield return null;
         }
+        obj.transform.localPosition = Vector3.zero;
+        obj.transform.eulerAngles = Vector3.zero;
+        if (listFood.Count > 1)
+        {
+            obj.transform.localPosition = new Vector3(listFood[listFood.Count - 2].transform.localPosition.x, listFood[listFood.Count - 2].transform.localPosition.y + 0.145f, listFood[listFood.Count - 2].transform.localPosition.z);
+            Debug.Log("ccccc");
+        }
+
         if (isBin)
         {
             Destroy(obj.gameObject);
         }
         // Hoặc bạn có thể thực hiện các công việc khác sau khi ném vật thể hoàn thành
         // Ví dụ: Hủy bỏ vật thể, hiển thị hiệu ứng, v.v.
+
     }
     Vector3 CalculateArcPoint(float t, GameObject obj)
     {
@@ -120,7 +131,7 @@ public class MCCarrierScript : MonoBehaviour
             if (obj.transform.name == "beef(Clone)")
             {
                 float x = Mathf.Lerp(startSpawnPointBeef.position.x, changeParent.transform.position.x, t);
-                float y = Mathf.Lerp(startSpawnPointBeef.position.y, changeParent.transform.position.y, t) + Mathf.Sin(t * Mathf.PI) * arcHeight;
+                float y = Mathf.Lerp(startSpawnPointBeef.position.y, changeParent.transform.position.y, t) + Mathf.Sin(t * Mathf.PI) * arcHeight;  
                 float z = Mathf.Lerp(startSpawnPointBeef.position.z, changeParent.transform.position.z, t);
                 return new Vector3(x, y, z);
             }
@@ -131,6 +142,7 @@ public class MCCarrierScript : MonoBehaviour
                 float z = Mathf.Lerp(startSpawnPointVegetable.position.z, changeParent.transform.position.z, t);
                 return new Vector3(x, y, z);
             }
+
         }
         else
         {
@@ -142,20 +154,18 @@ public class MCCarrierScript : MonoBehaviour
 
     }
 
-    IEnumerator  DropFood()
+    IEnumerator DropFood()
     {
-        yield return new WaitForSeconds(_actionScript._duration);
+        yield return new WaitForSeconds(_actionScript._duration / 2);
 
-        index = listFood.Count - 1;
-        Debug.Log("index " + index);
         isBin = true;
         if (listFood.Count > 0)
         {
+            index = listFood.Count - 1;
             // Destroy(transform.GetChild(0).GetChild(index).gameObject);
             ThrowObjectOnArc(listFood[index].gameObject);
             listFood.RemoveAt(index);
-
-            index--;
+            dropFood = StartCoroutine(DropFood());
         }
         yield return null;
     }

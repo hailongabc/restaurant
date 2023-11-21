@@ -16,6 +16,7 @@ public class MainCharacterController : MonoBehaviour
     [SerializeField] private LayerMask _groundLayer;
     [SerializeField] private LayerMask _edgeLayer;
     [SerializeField] private Transform _slopeDetector;
+    public MCCarrierScript mcCarrierScript;
 
     private bool isMoving = false;
     private bool isStart = false;
@@ -71,6 +72,7 @@ public class MainCharacterController : MonoBehaviour
                     {
                         isMoving = true;
                         _animator.SetBool("IsMoving", true);
+                       
                     }
                 }
             }
@@ -82,8 +84,19 @@ public class MainCharacterController : MonoBehaviour
             {
                 isMoving = false;
                 _animator.SetBool("IsMoving", false);
+                Debug.Log("cccccccccccc");
             }
         }
+
+        if (mcCarrierScript.listFood.Count > 0)
+        {
+            _animator.SetBool("IsCarrying", true);
+        }
+        else
+        {
+            _animator.SetBool("IsCarrying", false);
+        }
+
     }
     private Vector3 WallHandler(Vector3 moveFactor)
     {

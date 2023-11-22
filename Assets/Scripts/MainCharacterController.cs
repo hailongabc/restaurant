@@ -16,10 +16,14 @@ public class MainCharacterController : MonoBehaviour
     [SerializeField] private LayerMask _groundLayer;
     [SerializeField] private LayerMask _edgeLayer;
     [SerializeField] private Transform _slopeDetector;
+    [SerializeField] private ObjectFollowTransform[] _carriersFollow;
+    public List<Transform> listDestination = new List<Transform>();
     public MCCarrierScript mcCarrierScript;
 
     private bool isMoving = false;
     private bool isStart = false;
+    public bool ghe1 = false;
+    public float randomValue23;
     Tween fadeTween;
     void Update()
     {
@@ -84,7 +88,6 @@ public class MainCharacterController : MonoBehaviour
             {
                 isMoving = false;
                 _animator.SetBool("IsMoving", false);
-                Debug.Log("cccccccccccc");
             }
         }
 

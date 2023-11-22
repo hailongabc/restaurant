@@ -29,12 +29,6 @@ public class CustomerMovement : MonoBehaviour
         {
             randomValue23 = 3f;
         }
-
-
-
-        Debug.Log("randomValue01 " + Mathf.RoundToInt(randomValue01));
-        Debug.Log("randomValue23 " + Mathf.RoundToInt(randomValue23));
-
     }
     // Update is called once per frame
     void Update()
@@ -57,11 +51,9 @@ public class CustomerMovement : MonoBehaviour
             }
             if (distanceToWalkPoint.magnitude < 1f)
             {
-                Debug.Log("vo day ko");
                 isDes2 = true;
                 agent.SetDestination(_mainCharacterController.listDestination[Mathf.RoundToInt(randomValue23)].transform.position);
                 Vector3 distanceToWalkPoint2 = transform.position - _mainCharacterController.listDestination[Mathf.RoundToInt(randomValue23)].transform.position;
-                Debug.Log(distanceToWalkPoint2.magnitude);
                 if (distanceToWalkPoint2.magnitude < 1.5f)
                 {
 
@@ -69,7 +61,6 @@ public class CustomerMovement : MonoBehaviour
                     transform.DOLocalRotate(targetRotation, 1f);
                     _animator.SetBool("IsSit", true);
                     isDes1 = true;
-                    Debug.Log("xin day");
                 }
             }
         }
@@ -92,7 +83,6 @@ public class CustomerMovement : MonoBehaviour
                     transform.DOLocalRotate(targetRotation, 0.5f);
                     _animator.SetBool("IsSit", true);
                     isDes1 = true;
-                    Debug.Log("vcvcv");
                 }
             }
         }
@@ -104,4 +94,6 @@ public class CustomerMovement : MonoBehaviour
 
         yield return null; 
     }
+
+
 }

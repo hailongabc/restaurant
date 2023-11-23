@@ -14,20 +14,24 @@ public class CustomerMovement : MonoBehaviour
     private float randomValue01;
     private float randomValue23;
     public Animator _animator;
+    public GameObject orderView;
+    public bool isGhe1;
     // Start is called before the first frame update
 
     private void Awake()
     {
         agent = GetComponent<NavMeshAgent>();
-        randomValue01 = Random.Range(0f, 1f);
+        randomValue01 = Random.Range(0f, 3f);
         if (!_mainCharacterController.ghe1)
         {
-            randomValue23 = 2f;
+            randomValue23 = 4f;
             _mainCharacterController.ghe1 = true;
+            isGhe1 = false;
         }
         else
         {
-            randomValue23 = 3f;
+            isGhe1 = true;
+            randomValue23 = 5f;
         }
     }
     // Update is called once per frame
@@ -41,7 +45,7 @@ public class CustomerMovement : MonoBehaviour
 
     private void Move1()
     {
-        if (Mathf.RoundToInt(randomValue23) == 2)
+        if (Mathf.RoundToInt(randomValue23) == 5)
         {
             Vector3 distanceToWalkPoint = Vector3.zero;
             if (!isDes2)
@@ -54,12 +58,11 @@ public class CustomerMovement : MonoBehaviour
                 isDes2 = true;
                 agent.SetDestination(_mainCharacterController.listDestination[Mathf.RoundToInt(randomValue23)].transform.position);
                 Vector3 distanceToWalkPoint2 = transform.position - _mainCharacterController.listDestination[Mathf.RoundToInt(randomValue23)].transform.position;
-                if (distanceToWalkPoint2.magnitude < 1.5f)
+                if (distanceToWalkPoint2.magnitude < 1.1f)
                 {
-
                     Vector3 targetRotation = Vector3.zero;
-                    transform.DOLocalRotate(targetRotation, 1f);
-                    _animator.SetBool("IsSit", true);
+                    transform.DOLocalRotate(targetRotation, 0.5f);
+                    StartCoroutine(SitDown());
                     isDes1 = true;
                 }
             }
@@ -77,23 +80,26 @@ public class CustomerMovement : MonoBehaviour
                 isDes2 = true;
                 agent.SetDestination(_mainCharacterController.listDestination[Mathf.RoundToInt(randomValue23)].transform.position);
                 Vector3 distanceToWalkPoint2 = transform.position - _mainCharacterController.listDestination[Mathf.RoundToInt(randomValue23)].transform.position;
-                if (distanceToWalkPoint2.magnitude < 1.5f)
+                if (distanceToWalkPoint2.magnitude < 1.1f)
                 {
                     Vector3 targetRotation = new Vector3(0f, 180f, 0f);
                     transform.DOLocalRotate(targetRotation, 0.5f);
-                    _animator.SetBool("IsSit", true);
+                    StartCoroutine(SitDown());
                     isDes1 = true;
                 }
             }
         }
     }
 
-    IEnumerable SitDown()
+    IEnumerator SitDown()
     {
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(0.5f);
+        transform.GetChild(0).transform.DOLocalMoveY(0.798f, 0.1f);
+        _animator.SetBool("IsSit", true);
+        orderView.SetActive(true);
 
-        yield return null; 
+        yield return null;
     }
 
-
+   
 }

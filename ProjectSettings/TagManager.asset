@@ -9,6 +9,8 @@ TagManager:
   - beef
   - Bill
   - FoodSpawner
+  - Customer
+  - Chair
   layers:
   - Default
   - TransparentFX

@@ -184,7 +184,7 @@ public class MCCarrierScript : MonoBehaviour
 
     }
 
-    IEnumerator ThrowCoroutineDropFoodCustomer(GameObject obj, bool isGhe1)
+    IEnumerator ThrowCoroutineDropFoodCustomer(GameObject obj, bool isGhe1, Collider other)
     {
         obj.transform.SetParent(changeParentTable.transform);
         if (!isGhe1)
@@ -206,6 +206,7 @@ public class MCCarrierScript : MonoBehaviour
                 obj.transform.position = currentPos;
                 yield return null;
             }
+            other.GetComponent<CustomerMovement>().orderView.SetActive(false);
             // Hoặc bạn có thể thực hiện các công việc khác sau khi ném vật thể hoàn thành
             // Ví dụ: Hủy bỏ vật thể, hiển thị hiệu ứng, v.v.
         }
@@ -227,6 +228,8 @@ public class MCCarrierScript : MonoBehaviour
                 // Di chuyển vật thể đến vị trí hiện tại
                 obj.transform.position = currentPos;
                 yield return null;
+                other.GetComponent<CustomerMovement>().orderView.SetActive(false);
+
             }
             // Hoặc bạn có thể thực hiện các công việc khác sau khi ném vật thể hoàn thành
             // Ví dụ: Hủy bỏ vật thể, hiển thị hiệu ứng, v.v.
@@ -295,6 +298,7 @@ public class MCCarrierScript : MonoBehaviour
     {
         var getOrderView = other.GetComponent<CustomerMovement>().orderView.GetComponent<OrderScript>();
         var getCustomerChair = other.GetComponent<CustomerMovement>();
+
         if (getOrderView.spriteRenderer.sprite.name == "Vegetable")
         {
             for (int i = 0; i < listFood.Count; i++)
@@ -311,7 +315,7 @@ public class MCCarrierScript : MonoBehaviour
             }
             if (vegetable != null)
             {
-                StartCoroutine(ThrowCoroutineDropFoodCustomer(vegetable, getCustomerChair.isGhe1));
+                StartCoroutine(ThrowCoroutineDropFoodCustomer(vegetable, getCustomerChair.isGhe1, other));
             }
         }
         else if (getOrderView.spriteRenderer.sprite.name == "BeefSteak")
@@ -330,7 +334,7 @@ public class MCCarrierScript : MonoBehaviour
             }
             if (beef != null)
             {
-                StartCoroutine(ThrowCoroutineDropFoodCustomer(beef, getCustomerChair.isGhe1));
+                StartCoroutine(ThrowCoroutineDropFoodCustomer(beef, getCustomerChair.isGhe1, other));
             }
 
         }

@@ -16,6 +16,10 @@ public class CustomerMovement : MonoBehaviour
     public Animator _animator;
     public GameObject orderView;
     public bool isGhe1;
+    public bool isEated;
+    private bool isEatDone;
+    private int randomIndex;
+    private bool isEndPoint = true;
     // Start is called before the first frame update
 
     private void Awake()
@@ -39,11 +43,28 @@ public class CustomerMovement : MonoBehaviour
     {
         if (!isDes1)
         {
-            Move1();
+            Move();
         }
+        if (_mainCharacterController.doneEatCount > 1)
+        {
+            if (isEatDone)
+            {
+                _mainCharacterController.billCount++;
+                if (_mainCharacterController.billCount >= 2)
+                {
+                    _mainCharacterController.doneEatCount = 0;
+                }
+                BillPlease();
+            }
+        }
+        if (!isEndPoint)
+        {
+            GotoReceipt();
+        }
+
     }
 
-    private void Move1()
+    private void Move()
     {
         if (Mathf.RoundToInt(randomValue23) == 5)
         {
@@ -95,11 +116,56 @@ public class CustomerMovement : MonoBehaviour
     {
         yield return new WaitForSeconds(0.5f);
         transform.GetChild(0).transform.DOLocalMoveY(0.798f, 0.1f);
+
         _animator.SetBool("IsSit", true);
         orderView.SetActive(true);
 
         yield return null;
     }
+    public void Eat()
+    {
+        _animator.SetBool("IsEat", true);
+        StartCoroutine(EatDone());
+    }
 
-   
+    IEnumerator EatDone()
+    {
+        yield return new WaitForSeconds(_mainCharacterController.timeEat);
+        _mainCharacterController.doneEatCount++;
+        Destroy(transform.GetChild(transform.childCount - 1).gameObject);
+        _animator.SetBool("IsEat", false);
+        isEatDone = true;
+        if (_mainCharacterController.doneEatCount > 1)
+        {
+            Instantiate(_mainCharacterController.diaban, _mainCharacterController.diabanPos.position, Quaternion.identity, _mainCharacterController.changeParentTable.transform);
+        }
+        yield return null;
+    }
+    private void BillPlease()
+    {
+        randomIndex = Mathf.RoundToInt(Random.Range(0f, 3f));
+        _mainCharacterController.ghe1 = false;
+        transform.GetChild(0).transform.DOLocalMoveY(0f, 0.1f)
+            .OnComplete(() =>
+            {
+                _animator.SetBool("IsSit", false);
+                isEndPoint = false;
+            });
+        isEatDone = false;
+
+    }
+
+    private void GotoReceipt()
+    {
+        agent.SetDestination(_mainCharacterController.listReception[randomIndex].position);
+        var distanceToEndPoint = transform.position - _mainCharacterController.listReception[randomIndex].position;
+        if (distanceToEndPoint.magnitude < 1f)
+        {
+            _animator.SetBool("IsSit", true);
+            Vector3 targetRotation = new Vector3(0f, 180f, 0f);
+            transform.DOLocalRotate(targetRotation, 0.5f);
+            isEndPoint = true;
+            Debug.Log("zxczxczxczxczx");
+        }
+    }
 }

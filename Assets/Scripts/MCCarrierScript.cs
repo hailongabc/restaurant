@@ -11,13 +11,13 @@ public class MCCarrierScript : MonoBehaviour
     [SerializeField] private Transform dropPointChair1;
     [SerializeField] private Transform dropPointChair2;
     [SerializeField] private GameObject changeParent;
-    [SerializeField] private GameObject changeParentTable;
     public List<GameObject> listFood = new List<GameObject>();
     public float arcHeight = 1f;
     public float throwDuration = 2f;
     private int index;
     private Coroutine getFood;
     private Coroutine dropFood;
+    private Coroutine cleanFood;
     private GameObject vegetable;
     private GameObject beef;
 
@@ -45,10 +45,26 @@ public class MCCarrierScript : MonoBehaviour
         {
             if (listFood.Count > 0)
             {
-                DropFoodCustomer(other);
+                if (!other.GetComponent<CustomerMovement>().isEated)
+                {
+                    DropFoodCustomer(other);
+                }
             }
         }
-        
+        if (other.CompareTag("Clean"))
+        {
+            if (other.transform.Find("diaban(Clone)"))
+            {
+                cleanFood = StartCoroutine(Clean(other));
+            }
+        }
+        if (other.CompareTag("Clean"))
+        {
+            if (other.transform.Find("diaban(Clone)"))
+            {
+                cleanFood = StartCoroutine(Clean(other));
+            }
+        }
     }
     private void OnTriggerExit(Collider other)
     {
@@ -62,7 +78,13 @@ public class MCCarrierScript : MonoBehaviour
         if (other.CompareTag("FoodSpawner"))
         {
             StopCoroutine(getFood);
-
+        }
+        if (other.CompareTag("Clean"))
+        {
+            if (other.transform.Find("diaban(Clone)"))
+            {
+                StopCoroutine(cleanFood);
+            }
         }
     }
     private void OnTriggerStay(Collider other)
@@ -186,7 +208,7 @@ public class MCCarrierScript : MonoBehaviour
 
     IEnumerator ThrowCoroutineDropFoodCustomer(GameObject obj, bool isGhe1, Collider other)
     {
-        obj.transform.SetParent(changeParentTable.transform);
+        obj.transform.SetParent(other.transform);
         if (!isGhe1)
         {
             // Chờ một khoảng thời gian để đảm bảo vật thể đã được instantiate
@@ -298,15 +320,16 @@ public class MCCarrierScript : MonoBehaviour
     {
         var getOrderView = other.GetComponent<CustomerMovement>().orderView.GetComponent<OrderScript>();
         var getCustomerChair = other.GetComponent<CustomerMovement>();
-
         if (getOrderView.spriteRenderer.sprite.name == "Vegetable")
         {
-            for (int i = 0; i < listFood.Count; i++)
+            var searchValue = "vegetable(Clone)";
+            for (int i = listFood.Count - 1; i >= 0; i--)
             {
-                if (listFood[i].transform.name == "vegetable(Clone)")
+                if (listFood[i].transform.name == searchValue)
                 {
                     vegetable = listFood[i];
                     listFood.RemoveAt(i);
+                    break;
                 }
                 else
                 {
@@ -315,17 +338,21 @@ public class MCCarrierScript : MonoBehaviour
             }
             if (vegetable != null)
             {
+                getCustomerChair.isEated = true;
+                getCustomerChair.Eat();
                 StartCoroutine(ThrowCoroutineDropFoodCustomer(vegetable, getCustomerChair.isGhe1, other));
             }
         }
         else if (getOrderView.spriteRenderer.sprite.name == "BeefSteak")
         {
-            for (int i = 0; i < listFood.Count; i++)
+            var searchValue = "beef(Clone)";
+            for (int i = listFood.Count - 1; i >= 0; i--)
             {
-                if (listFood[i].transform.name == "beef(Clone)")
+                if (listFood[i].transform.name == searchValue)
                 {
                     beef = listFood[i];
                     listFood.RemoveAt(i);
+                    break;
                 }
                 else
                 {
@@ -334,9 +361,19 @@ public class MCCarrierScript : MonoBehaviour
             }
             if (beef != null)
             {
+                getCustomerChair.isEated = true;
+                getCustomerChair.Eat();
                 StartCoroutine(ThrowCoroutineDropFoodCustomer(beef, getCustomerChair.isGhe1, other));
             }
 
         }
+    }
+
+    IEnumerator Clean(Collider other)
+    {
+        _actionScript.StartAction();
+        yield return new WaitForSeconds(_actionScript._duration);
+        Destroy(other.transform.Find("diaban(Clone)").gameObject);
+        yield return null;
     }
 }

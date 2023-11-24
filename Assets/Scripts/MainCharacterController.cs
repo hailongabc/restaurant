@@ -8,7 +8,6 @@ public class MainCharacterController : MonoBehaviour
     [SerializeField] private Rigidbody _rigidbody;
     private Vector3 _rootPosition;
     [SerializeField] private float speed;
-    [SerializeField] private Camera camera;
     [SerializeField] private float durationZoomCam = 1f;
     [SerializeField] private float zoomInValue = 6f;
     [SerializeField] private float zoomOutValue = 7.5f;
@@ -18,12 +17,17 @@ public class MainCharacterController : MonoBehaviour
     [SerializeField] private Transform _slopeDetector;
     [SerializeField] private ObjectFollowTransform[] _carriersFollow;
     public List<Transform> listDestination = new List<Transform>();
+    public List<Transform> listReception = new List<Transform>();
     public MCCarrierScript mcCarrierScript;
-
+    public GameObject diaban;
+    public Transform diabanPos;
+    public GameObject changeParentTable;
     private bool isMoving = false;
     private bool isStart = false;
-    public bool ghe1 = false;
-    public float randomValue23;
+    [HideInInspector] public bool ghe1 = false;
+    [HideInInspector] public float doneEatCount;
+    [HideInInspector] public float billCount;
+    public float timeEat;
     Tween fadeTween;
     void Update()
     {
@@ -33,7 +37,7 @@ public class MainCharacterController : MonoBehaviour
         if (Input.GetMouseButtonDown(0))
         {
             _rootPosition = Input.mousePosition;
-            camera.DOOrthoSize(zoomOutValue, durationZoomCam);
+            Camera.main.DOOrthoSize(zoomOutValue, durationZoomCam);
             if (!isStart)
             {
                 fadeTween = Manager.ins.header.transform.GetComponent<CanvasGroup>().DOFade(0f, 0.5f);
@@ -83,7 +87,7 @@ public class MainCharacterController : MonoBehaviour
         }
         else
         {
-            camera.DOOrthoSize(zoomInValue, durationZoomCam);
+            Camera.main.DOOrthoSize(zoomInValue, durationZoomCam);
             if (isMoving)
             {
                 isMoving = false;

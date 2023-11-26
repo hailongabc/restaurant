@@ -12,6 +12,7 @@ TagManager:
   - Customer
   - Chair
   - Clean
+  - LineUp
   layers:
   - Default
   - TransparentFX

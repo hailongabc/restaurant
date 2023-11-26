@@ -7,8 +7,8 @@ using DG.Tweening;
 public class CustomerMovement : MonoBehaviour
 {
     public NavMeshAgent agent;
-    public MainCharacterController _mainCharacterController;
     private Vector3 distanceToWalkPoint;
+    private Transform endPoint;
     bool isDes1;
     bool isDes2;
     private float randomValue01;
@@ -17,50 +17,54 @@ public class CustomerMovement : MonoBehaviour
     public GameObject orderView;
     public bool isGhe1;
     public bool isEated;
-    private bool isEatDone;
-    private int randomIndex;
+    public bool isEatDone;
     private bool isEndPoint = true;
-    // Start is called before the first frame update
+    public Transform dropPointFood;
+    public int customerId;
 
     private void Awake()
     {
         agent = GetComponent<NavMeshAgent>();
         randomValue01 = Random.Range(0f, 3f);
-        if (!_mainCharacterController.ghe1)
+        for (int i = 0; i < MainCharacterController.ins.listDestinationEndPoint.Count; i++)
         {
-            randomValue23 = 4f;
-            _mainCharacterController.ghe1 = true;
-            isGhe1 = false;
-        }
-        else
-        {
-            isGhe1 = true;
-            randomValue23 = 5f;
-        }
-    }
-    // Update is called once per frame
-    void Update()
-    {
-        if (!isDes1)
-        {
-            Move();
-        }
-        if (_mainCharacterController.doneEatCount > 1)
-        {
-            if (isEatDone)
+            if (!MainCharacterController.ins.listDestinationEndPoint[i].GetComponent<CheckReception>().haveCustomer)
             {
-                _mainCharacterController.billCount++;
-                if (_mainCharacterController.billCount >= 2)
-                {
-                    _mainCharacterController.doneEatCount = 0;
-                }
-                BillPlease();
+                MainCharacterController.ins.listDestinationEndPoint[i].GetComponent<CheckReception>().haveCustomer = true;
+                endPoint = MainCharacterController.ins.listDestinationEndPoint[i];
+                break;
             }
         }
-        if (!isEndPoint)
+
+    }
+    void Update()
+    {
+        //if (!isDes1)
+        //{
+        //    Move();
+        //}
+        //if (MainCharacterController.ins.doneEatCount > 1)
+        //{
+        //    if (isEatDone)
+        //    {
+        //        MainCharacterController.ins.billCount++;
+        //        if (MainCharacterController.ins.billCount >= 2)
+        //        {
+        //            MainCharacterController.ins.doneEatCount = 0;
+        //            BillPlease();
+        //        }
+        //    }
+        //}
+        if (!isDes1)
         {
-            GotoReceipt();
+        MoveTempPoint(MainCharacterController.ins.listDestinationTempPoint[Mathf.RoundToInt(randomValue01)].transform);
+
         }
+
+        //if (!isEndPoint)
+        //{
+        //    GotoReceipt();
+        //}
 
     }
 
@@ -71,14 +75,14 @@ public class CustomerMovement : MonoBehaviour
             Vector3 distanceToWalkPoint = Vector3.zero;
             if (!isDes2)
             {
-                agent.SetDestination(_mainCharacterController.listDestination[Mathf.RoundToInt(randomValue01)].transform.position);
-                distanceToWalkPoint = transform.position - _mainCharacterController.listDestination[Mathf.RoundToInt(randomValue01)].transform.position;
+                agent.SetDestination(MainCharacterController.ins.listDestinationTempPoint[Mathf.RoundToInt(randomValue01)].transform.position);
+                distanceToWalkPoint = transform.position - MainCharacterController.ins.listDestinationTempPoint[Mathf.RoundToInt(randomValue01)].transform.position;
             }
             if (distanceToWalkPoint.magnitude < 1f)
             {
                 isDes2 = true;
-                agent.SetDestination(_mainCharacterController.listDestination[Mathf.RoundToInt(randomValue23)].transform.position);
-                Vector3 distanceToWalkPoint2 = transform.position - _mainCharacterController.listDestination[Mathf.RoundToInt(randomValue23)].transform.position;
+                agent.SetDestination(MainCharacterController.ins.listDestinationEndPoint[Mathf.RoundToInt(randomValue23)].transform.position);
+                Vector3 distanceToWalkPoint2 = transform.position - MainCharacterController.ins.listDestinationEndPoint[Mathf.RoundToInt(randomValue23)].transform.position;
                 if (distanceToWalkPoint2.magnitude < 1.1f)
                 {
                     Vector3 targetRotation = Vector3.zero;
@@ -92,15 +96,15 @@ public class CustomerMovement : MonoBehaviour
         {
             if (!isDes2)
             {
-                agent.SetDestination(_mainCharacterController.listDestination[Mathf.RoundToInt(randomValue01)].transform.position);
-                distanceToWalkPoint = transform.position - _mainCharacterController.listDestination[Mathf.RoundToInt(randomValue01)].transform.position;
+                agent.SetDestination(MainCharacterController.ins.listDestinationTempPoint[Mathf.RoundToInt(randomValue01)].transform.position);
+                distanceToWalkPoint = transform.position - MainCharacterController.ins.listDestinationTempPoint[Mathf.RoundToInt(randomValue01)].transform.position;
             }
 
             if (distanceToWalkPoint.magnitude < 1f)
             {
                 isDes2 = true;
-                agent.SetDestination(_mainCharacterController.listDestination[Mathf.RoundToInt(randomValue23)].transform.position);
-                Vector3 distanceToWalkPoint2 = transform.position - _mainCharacterController.listDestination[Mathf.RoundToInt(randomValue23)].transform.position;
+                agent.SetDestination(MainCharacterController.ins.listDestinationEndPoint[Mathf.RoundToInt(randomValue23)].transform.position);
+                Vector3 distanceToWalkPoint2 = transform.position - MainCharacterController.ins.listDestinationEndPoint[Mathf.RoundToInt(randomValue23)].transform.position;
                 if (distanceToWalkPoint2.magnitude < 1.1f)
                 {
                     Vector3 targetRotation = new Vector3(0f, 180f, 0f);
@@ -112,14 +116,34 @@ public class CustomerMovement : MonoBehaviour
         }
     }
 
+    private void MoveTempPoint(Transform tempPoint)
+    {
+        if (!isDes2)
+        {
+            agent.SetDestination(tempPoint.position);
+            distanceToWalkPoint = transform.position - MainCharacterController.ins.listDestinationTempPoint[Mathf.RoundToInt(randomValue01)].transform.position;
+        }
+        if (distanceToWalkPoint.magnitude < 1f)
+        {
+            isDes2 = true;
+            agent.SetDestination(endPoint.position);
+            Vector3 distanceToWalkEndPoint = transform.position - endPoint.position;
+            if (distanceToWalkEndPoint.magnitude < 1.5f)
+            {
+                transform.DOLocalRotate(endPoint.GetComponent<CheckReception>().customerRotate, 0.5f);
+                StartCoroutine(SitDown());
+                isDes1 = true;
+            }
+        }
+
+
+    }
     IEnumerator SitDown()
     {
         yield return new WaitForSeconds(0.5f);
         transform.GetChild(0).transform.DOLocalMoveY(0.798f, 0.1f);
-
         _animator.SetBool("IsSit", true);
         orderView.SetActive(true);
-
         yield return null;
     }
     public void Eat()
@@ -130,42 +154,59 @@ public class CustomerMovement : MonoBehaviour
 
     IEnumerator EatDone()
     {
-        yield return new WaitForSeconds(_mainCharacterController.timeEat);
-        _mainCharacterController.doneEatCount++;
+        yield return new WaitForSeconds(MainCharacterController.ins.timeEat);
         Destroy(transform.GetChild(transform.childCount - 1).gameObject);
         _animator.SetBool("IsEat", false);
         isEatDone = true;
-        if (_mainCharacterController.doneEatCount > 1)
-        {
-            Instantiate(_mainCharacterController.diaban, _mainCharacterController.diabanPos.position, Quaternion.identity, _mainCharacterController.changeParentTable.transform);
-        }
+        Manager.ins.checkEatDone(this);
+
         yield return null;
     }
-    private void BillPlease()
+
+    public void ShowDiaBan()
     {
-        randomIndex = Mathf.RoundToInt(Random.Range(0f, 3f));
-        _mainCharacterController.ghe1 = false;
+        Instantiate(MainCharacterController.ins.diaban, endPoint.GetComponent<CheckReception>().diabanPoint.position, Quaternion.identity, endPoint.GetComponent<CheckReception>().diabanParent);
+    }
+    public void BillPlease()
+    {
+        //MainCharacterController.ins.ghe1 = false;
         transform.GetChild(0).transform.DOLocalMoveY(0f, 0.1f)
             .OnComplete(() =>
             {
                 _animator.SetBool("IsSit", false);
                 isEndPoint = false;
             });
-        isEatDone = false;
-
+        GotoReceipt();
     }
 
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("LineUp"))
+        {
+            RotateCustomer();
+        }
+    }
     private void GotoReceipt()
     {
-        agent.SetDestination(_mainCharacterController.listReception[randomIndex].position);
-        var distanceToEndPoint = transform.position - _mainCharacterController.listReception[randomIndex].position;
-        if (distanceToEndPoint.magnitude < 1f)
+        for (int i = 0; i < MainCharacterController.ins.listReception.Count; i++)
+        {
+            if (!MainCharacterController.ins.listReception[i].GetComponent<CheckReception>().haveCustomer)
+            {
+                agent.SetDestination(MainCharacterController.ins.listReception[i].position);
+                MainCharacterController.ins.listReception[i].GetComponent<CheckReception>().haveCustomer = true;
+                break;
+            }
+        }
+
+
+    }
+    private void RotateCustomer()
+    {
         {
             _animator.SetBool("IsSit", true);
             Vector3 targetRotation = new Vector3(0f, 180f, 0f);
             transform.DOLocalRotate(targetRotation, 0.5f);
             isEndPoint = true;
-            Debug.Log("zxczxczxczxczx");
         }
     }
 }

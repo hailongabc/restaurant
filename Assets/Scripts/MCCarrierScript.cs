@@ -8,8 +8,6 @@ public class MCCarrierScript : MonoBehaviour
     [SerializeField] private Transform startSpawnPointBeef;
     [SerializeField] private Transform startSpawnPointVegetable;
     [SerializeField] private Transform dropPoint;
-    [SerializeField] private Transform dropPointChair1;
-    [SerializeField] private Transform dropPointChair2;
     [SerializeField] private GameObject changeParent;
     public List<GameObject> listFood = new List<GameObject>();
     public float arcHeight = 1f;
@@ -58,13 +56,7 @@ public class MCCarrierScript : MonoBehaviour
                 cleanFood = StartCoroutine(Clean(other));
             }
         }
-        if (other.CompareTag("Clean"))
-        {
-            if (other.transform.Find("diaban(Clone)"))
-            {
-                cleanFood = StartCoroutine(Clean(other));
-            }
-        }
+        
     }
     private void OnTriggerExit(Collider other)
     {
@@ -86,10 +78,6 @@ public class MCCarrierScript : MonoBehaviour
                 StopCoroutine(cleanFood);
             }
         }
-    }
-    private void OnTriggerStay(Collider other)
-    {
-
     }
     IEnumerator GetFood(Collider other)
     {
@@ -206,11 +194,10 @@ public class MCCarrierScript : MonoBehaviour
 
     }
 
-    IEnumerator ThrowCoroutineDropFoodCustomer(GameObject obj, bool isGhe1, Collider other)
+    IEnumerator ThrowCoroutineDropFoodCustomer(GameObject obj, Collider other)
     {
         obj.transform.SetParent(other.transform);
-        if (!isGhe1)
-        {
+       
             // Chờ một khoảng thời gian để đảm bảo vật thể đã được instantiate
             yield return new WaitForSeconds(0.05f);
 
@@ -222,30 +209,7 @@ public class MCCarrierScript : MonoBehaviour
 
                 // Tính toán vị trí trên đường cung
                 float t = elapsedTime / throwDuration;
-                Vector3 currentPos = CalculateArcPointDropFoodChair2(t, obj);
-
-                // Di chuyển vật thể đến vị trí hiện tại
-                obj.transform.position = currentPos;
-                yield return null;
-            }
-            other.GetComponent<CustomerMovement>().orderView.SetActive(false);
-            // Hoặc bạn có thể thực hiện các công việc khác sau khi ném vật thể hoàn thành
-            // Ví dụ: Hủy bỏ vật thể, hiển thị hiệu ứng, v.v.
-        }
-        else
-        {
-            // Chờ một khoảng thời gian để đảm bảo vật thể đã được instantiate
-            yield return new WaitForSeconds(0.05f);
-
-            float elapsedTime = 0f;
-            while (elapsedTime < throwDuration)
-            {
-                // Tính toán thời gian đã trôi qua kể từ khi bắt đầu
-                elapsedTime += Time.deltaTime;
-
-                // Tính toán vị trí trên đường cung
-                float t = elapsedTime / throwDuration;
-                Vector3 currentPos = CalculateArcPointDropFoodChair1(t, obj);
+                Vector3 currentPos = CalculateArcPointDropFoodChair(t, obj, other);
 
                 // Di chuyển vật thể đến vị trí hiện tại
                 obj.transform.position = currentPos;
@@ -255,7 +219,7 @@ public class MCCarrierScript : MonoBehaviour
             }
             // Hoặc bạn có thể thực hiện các công việc khác sau khi ném vật thể hoàn thành
             // Ví dụ: Hủy bỏ vật thể, hiển thị hiệu ứng, v.v.
-        }
+     
 
     }
     Vector3 CalculateArcPointBeef(float t)
@@ -285,20 +249,12 @@ public class MCCarrierScript : MonoBehaviour
         return new Vector3(x, y, z);
     }
 
-    Vector3 CalculateArcPointDropFoodChair1(float t, GameObject obj)
+    Vector3 CalculateArcPointDropFoodChair(float t, GameObject obj, Collider other)
     {
         // Sử dụng hàm Lerp để tính toán vị trí trên đường cung
-        float x = Mathf.Lerp(obj.transform.position.x, dropPointChair1.position.x, t);
-        float y = Mathf.Lerp(obj.transform.position.y, dropPointChair1.position.y, t) + Mathf.Sin(t * Mathf.PI) * arcHeight / 10;
-        float z = Mathf.Lerp(obj.transform.position.z, dropPointChair1.position.z, t);
-        return new Vector3(x, y, z);
-    }
-    Vector3 CalculateArcPointDropFoodChair2(float t, GameObject obj)
-    {
-        // Sử dụng hàm Lerp để tính toán vị trí trên đường cung
-        float x = Mathf.Lerp(obj.transform.position.x, dropPointChair2.position.x, t);
-        float y = Mathf.Lerp(obj.transform.position.y, dropPointChair2.position.y, t) + Mathf.Sin(t * Mathf.PI) * arcHeight / 10;
-        float z = Mathf.Lerp(obj.transform.position.z, dropPointChair2.position.z, t);
+        float x = Mathf.Lerp(obj.transform.position.x, other.transform.GetComponent<CustomerMovement>().dropPointFood.position.x, t);
+        float y = Mathf.Lerp(obj.transform.position.y, other.transform.GetComponent<CustomerMovement>().dropPointFood.position.y, t) + Mathf.Sin(t * Mathf.PI) * arcHeight / 10;
+        float z = Mathf.Lerp(obj.transform.position.z, other.transform.GetComponent<CustomerMovement>().dropPointFood.position.z, t);
         return new Vector3(x, y, z);
     }
 
@@ -340,7 +296,7 @@ public class MCCarrierScript : MonoBehaviour
             {
                 getCustomerChair.isEated = true;
                 getCustomerChair.Eat();
-                StartCoroutine(ThrowCoroutineDropFoodCustomer(vegetable, getCustomerChair.isGhe1, other));
+                StartCoroutine(ThrowCoroutineDropFoodCustomer(vegetable, other));
             }
         }
         else if (getOrderView.spriteRenderer.sprite.name == "BeefSteak")
@@ -363,7 +319,7 @@ public class MCCarrierScript : MonoBehaviour
             {
                 getCustomerChair.isEated = true;
                 getCustomerChair.Eat();
-                StartCoroutine(ThrowCoroutineDropFoodCustomer(beef, getCustomerChair.isGhe1, other));
+                StartCoroutine(ThrowCoroutineDropFoodCustomer(beef, other));
             }
 
         }

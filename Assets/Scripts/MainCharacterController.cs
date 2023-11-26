@@ -5,6 +5,7 @@ using DG.Tweening;
 
 public class MainCharacterController : MonoBehaviour
 {
+    public static MainCharacterController ins;
     [SerializeField] private Rigidbody _rigidbody;
     private Vector3 _rootPosition;
     [SerializeField] private float speed;
@@ -16,7 +17,8 @@ public class MainCharacterController : MonoBehaviour
     [SerializeField] private LayerMask _edgeLayer;
     [SerializeField] private Transform _slopeDetector;
     [SerializeField] private ObjectFollowTransform[] _carriersFollow;
-    public List<Transform> listDestination = new List<Transform>();
+    public List<Transform> listDestinationEndPoint = new List<Transform>();
+    public List<Transform> listDestinationTempPoint = new List<Transform>();
     public List<Transform> listReception = new List<Transform>();
     public MCCarrierScript mcCarrierScript;
     public GameObject diaban;
@@ -25,10 +27,15 @@ public class MainCharacterController : MonoBehaviour
     private bool isMoving = false;
     private bool isStart = false;
     [HideInInspector] public bool ghe1 = false;
-    [HideInInspector] public float doneEatCount;
+     public float doneEatCount;
     [HideInInspector] public float billCount;
     public float timeEat;
     Tween fadeTween;
+
+    private void Awake()
+    {
+        ins = this;
+    }
     void Update()
     {
         _rigidbody.velocity = Vector3.zero;

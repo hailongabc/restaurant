@@ -19,6 +19,7 @@ public class Manager : MonoBehaviour
     public Transform endPos4;
     public GameObject Banghe2;
     public List<CustomerMovement> listCustomerReceipt = new List<CustomerMovement>();
+    public Transform exitPoint;
     private void Awake()
     {
         ins = this;
@@ -89,6 +90,6 @@ public class Manager : MonoBehaviour
         }
         Banghe2.SetActive(true);
         button.interactable = false;
-        Debug.Log("vvcvcvcv");
     }
+
 }

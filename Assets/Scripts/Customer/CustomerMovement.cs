@@ -21,7 +21,8 @@ public class CustomerMovement : MonoBehaviour
     private bool isEndPoint = true;
     public Transform dropPointFood;
     public int customerId;
-    private bool hasEnterd = false;
+    public bool hasEnterd = false;
+   
 
     private void Awake()
     {
@@ -162,12 +163,11 @@ public class CustomerMovement : MonoBehaviour
     {
         if (other.CompareTag("LineUp"))
         {
-            if (!hasEnterd)
-            {
                 RotateCustomer();
-                hasEnterd = true;
-                Debug.Log("zxczxczxc");
-            }
+        }
+        if (other.CompareTag("Exit"))
+        {
+            Destroy(gameObject);
         }
     }
     private void GotoReceipt()
@@ -178,6 +178,7 @@ public class CustomerMovement : MonoBehaviour
             {
                 agent.SetDestination(MainCharacterController.ins.listReception[i].position);
                 MainCharacterController.ins.listReception[i].GetComponent<CheckReception>().haveCustomer = true;
+                Manager.ins.listCustomerReceipt.Add(this);
                 break;
             }
         }
@@ -187,15 +188,21 @@ public class CustomerMovement : MonoBehaviour
     private void RotateCustomer()
     {
         {
-            Manager.ins.listCustomerReceipt.Add(this);
+            hasEnterd = true;
             _animator.SetBool("IsSit", true);
             Vector3 targetRotation = new Vector3(0f, 180f, 0f);
-            transform.DOLocalRotate(targetRotation, 0.5f)
-                .OnComplete(() =>
-                {
-
-                });
+            transform.DOLocalRotate(targetRotation, 0.5f);
             isEndPoint = true;
         }
     }
+
+    public void ExitRoom()
+    {
+      //  Vector3 targetRotation = Vector3.zero;
+        //transform.DORotate(targetRotation, 0.5f);
+        agent.SetDestination(Manager.ins.exitPoint.position);
+
+        //_animator.SetBool("IsSit", false);
+    }
+
 }

@@ -13,6 +13,8 @@ TagManager:
   - Chair
   - Clean
   - LineUp
+  - MoneyArea
+  - Exit
   layers:
   - Default
   - TransparentFX

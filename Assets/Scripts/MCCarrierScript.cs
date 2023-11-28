@@ -58,7 +58,13 @@ public class MCCarrierScript : MonoBehaviour
         }
         if (other.CompareTag("Bill"))
         {
-            
+            if(Manager.ins.listCustomerReceipt.Count > 0)
+            {
+                if (Manager.ins.listCustomerReceipt[0].hasEnterd)
+                {
+                    StartCoroutine(DoneReception());
+                }
+            }
         }
 
     }
@@ -335,5 +341,20 @@ public class MCCarrierScript : MonoBehaviour
         yield return new WaitForSeconds(_actionScript._duration);
         Destroy(other.transform.Find("diaban(Clone)").gameObject);
         yield return null;
+    }
+
+    IEnumerator DoneReception()
+    {
+        _actionScript.StartAction();
+        yield return new WaitForSeconds(_actionScript._duration);
+        Manager.ins.listCustomerReceipt[0].ExitRoom();
+        Manager.ins.listCustomerReceipt.RemoveAt(0);
+        for (int i = 0; i < Manager.ins.listCustomerReceipt.Count; i++)
+        {
+            Manager.ins.listCustomerReceipt[i].agent.SetDestination(MainCharacterController.ins.listReception[i].position);
+        }
+
+        yield return null;
+
     }
 }

@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using DG.Tweening;
 
 public class Manager : MonoBehaviour
 {
@@ -17,6 +18,7 @@ public class Manager : MonoBehaviour
     public Transform endPos3;
     public Transform endPos4;
     public GameObject Banghe2;
+    public List<CustomerMovement> listCustomerReceipt = new List<CustomerMovement>();
     private void Awake()
     {
         ins = this;

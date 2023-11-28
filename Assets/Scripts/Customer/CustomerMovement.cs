@@ -21,6 +21,7 @@ public class CustomerMovement : MonoBehaviour
     private bool isEndPoint = true;
     public Transform dropPointFood;
     public int customerId;
+    private bool hasEnterd = false;
 
     private void Awake()
     {
@@ -39,33 +40,11 @@ public class CustomerMovement : MonoBehaviour
     }
     void Update()
     {
-        //if (!isDes1)
-        //{
-        //    Move();
-        //}
-        //if (MainCharacterController.ins.doneEatCount > 1)
-        //{
-        //    if (isEatDone)
-        //    {
-        //        MainCharacterController.ins.billCount++;
-        //        if (MainCharacterController.ins.billCount >= 2)
-        //        {
-        //            MainCharacterController.ins.doneEatCount = 0;
-        //            BillPlease();
-        //        }
-        //    }
-        //}
         if (!isDes1)
         {
-        MoveTempPoint(MainCharacterController.ins.listDestinationTempPoint[Mathf.RoundToInt(randomValue01)].transform);
+            MoveTempPoint(MainCharacterController.ins.listDestinationTempPoint[Mathf.RoundToInt(randomValue01)].transform);
 
         }
-
-        //if (!isEndPoint)
-        //{
-        //    GotoReceipt();
-        //}
-
     }
 
     private void Move()
@@ -183,7 +162,12 @@ public class CustomerMovement : MonoBehaviour
     {
         if (other.CompareTag("LineUp"))
         {
-            RotateCustomer();
+            if (!hasEnterd)
+            {
+                RotateCustomer();
+                hasEnterd = true;
+                Debug.Log("zxczxczxc");
+            }
         }
     }
     private void GotoReceipt()
@@ -203,9 +187,14 @@ public class CustomerMovement : MonoBehaviour
     private void RotateCustomer()
     {
         {
+            Manager.ins.listCustomerReceipt.Add(this);
             _animator.SetBool("IsSit", true);
             Vector3 targetRotation = new Vector3(0f, 180f, 0f);
-            transform.DOLocalRotate(targetRotation, 0.5f);
+            transform.DOLocalRotate(targetRotation, 0.5f)
+                .OnComplete(() =>
+                {
+
+                });
             isEndPoint = true;
         }
     }

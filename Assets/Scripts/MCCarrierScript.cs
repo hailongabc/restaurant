@@ -56,7 +56,11 @@ public class MCCarrierScript : MonoBehaviour
                 cleanFood = StartCoroutine(Clean(other));
             }
         }
-        
+        if (other.CompareTag("Bill"))
+        {
+            
+        }
+
     }
     private void OnTriggerExit(Collider other)
     {
